@@ -1,6 +1,6 @@
 package com.mashibing.tank;
 
-public class tankmain {
+public class Tankmain {
     public static void main(String[] args) {
 
         TankFrame tf = new TankFrame();
