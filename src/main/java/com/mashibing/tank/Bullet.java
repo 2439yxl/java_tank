@@ -4,8 +4,9 @@ import java.awt.*;
 
 public class Bullet
 {
-    private  static final float BULLET_SPEED = 10;
-    private static int WIDTH = 20,HEIGHT = 20;
+    private  static final float BULLET_SPEED = 20;
+    public static int WIDTH = ResourceMgr.bulletD.getWidth();
+    public static int HEIGHT= ResourceMgr.bulletD.getHeight();
     private int x,y;
     private Dir dir;
     private Boolean Live = true;
@@ -23,10 +24,20 @@ public class Bullet
             tf.bullets.remove(this);
         }
 
-        Color c=g.getColor();
-        g.setColor(Color.RED);
-        g.fillOval(x, y, WIDTH, HEIGHT);
-        g.setColor(c);
+        switch (dir) {
+            case LEFT:
+                g.drawImage(ResourceMgr.bulletL, this.x, this.y, null);
+                break;
+            case RIGHT:
+                g.drawImage(ResourceMgr.bulletR, this.x, this.y, null);
+                break;
+            case UP:
+                g.drawImage(ResourceMgr.bulletU, this.x, this.y, null);
+                break;
+            case DOWN:
+                g.drawImage(ResourceMgr.bulletD, this.x, this.y, null);
+                break;
+        }
 
         move();
     }

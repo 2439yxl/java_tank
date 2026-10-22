@@ -7,13 +7,19 @@ import java.util.Objects;
 
 public class ResourceMgr {
     public static BufferedImage tankL,tankR,tankU,tankD;
-
+    public static BufferedImage bulletL,bulletR,bulletU,bulletD;
     static {
         try {
             tankL = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getResourceAsStream("/tankL.gif")));
             tankR = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getResourceAsStream("/tankR.gif")));
             tankU = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getResourceAsStream("/tankU.gif")));
             tankD = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getResourceAsStream("/tankD.gif")));
+
+            bulletD = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getResourceAsStream("/bulletD.gif")));
+            bulletL = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getResourceAsStream("/bulletL.gif")));
+            bulletR = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getResourceAsStream("/bulletR.gif")));
+            bulletU = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getResourceAsStream("/bulletU.gif")));
+
         }catch (IOException e) {
             e.printStackTrace();
         }

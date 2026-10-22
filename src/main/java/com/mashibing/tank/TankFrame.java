@@ -9,10 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TankFrame extends Frame {
-    Tank myTank = new Tank(200,200,Dir.DOWN,this);
+    Tank myTank = new Tank(400, 400, Dir.DOWN, this);
     List<Bullet> bullets = new ArrayList<>();
-    Bullet b = new Bullet(200,200,Dir.DOWN,this);
-    static  final  int  GAME_WIDTH = 800,GAME_HEIGHT = 600;
+    List<Tank> tanks = new ArrayList<>();
+    Bullet b = new Bullet(200, 200, Dir.DOWN, this);
+    static final int GAME_WIDTH = 800, GAME_HEIGHT = 600;
 
     public TankFrame() {
         setSize(GAME_WIDTH, GAME_HEIGHT);
@@ -30,20 +31,25 @@ public class TankFrame extends Frame {
             }
         });
     }
+
     Image OffScreenImage = null;
+
     @Override
-    public void paint(Graphics g){
+    public void paint(Graphics g) {
         Color c = g.getColor();
         g.setColor(Color.WHITE);
-        g.drawString("子弹的数量："+bullets.size(),10,60);
+        g.drawString("子弹的数量：" + bullets.size(), 10, 60);
         g.setColor(c);
 
         myTank.paint(g);
-        for(int j=0;j<bullets.size();j++) {
+        for (int j = 0; j < bullets.size(); j++) {
             bullets.get(j).paint(g);
         }
-
+        for (int j = 0; j < tanks.size(); j++) {
+            tanks.get(j).paint(g);
+        }
     }
+
     class MyKeyListener extends KeyAdapter {
 
         boolean bL = false;
@@ -53,8 +59,9 @@ public class TankFrame extends Frame {
 
         public void move() {
         }
-        public  void setMainTankDir(){
-            if(!bL && !bU && !bR && !bD) myTank.setMoving(false);
+
+        public void setMainTankDir() {
+            if (!bL && !bU && !bR && !bD) myTank.setMoving(false);
             else {
                 myTank.setMoving(true);
                 if (bL) myTank.setDir(Dir.LEFT);
@@ -81,7 +88,7 @@ public class TankFrame extends Frame {
                     bD = true;
                     break;
 
-                case  KeyEvent.VK_SPACE:
+                case KeyEvent.VK_SPACE:
                     myTank.fire();
                     break;
 
@@ -92,6 +99,7 @@ public class TankFrame extends Frame {
 //            x += 100;
             setMainTankDir();
         }
+
         @Override
         public void keyReleased(KeyEvent e) {
             int code = e.getKeyCode();
@@ -117,16 +125,18 @@ public class TankFrame extends Frame {
     }
 
     @Override
-    public void update(Graphics g){
-        if(OffScreenImage == null){
-            OffScreenImage = this.createImage(GAME_WIDTH,GAME_HEIGHT);
+    public void update(Graphics g) {
+        if (OffScreenImage == null) {
+            OffScreenImage = this.createImage(GAME_WIDTH, GAME_HEIGHT);
         }
         Graphics gOffScreen = OffScreenImage.getGraphics();
         Color c = gOffScreen.getColor();
         gOffScreen.setColor(Color.BLACK);
-        gOffScreen.fillRect(0,0,GAME_WIDTH,GAME_HEIGHT);
+        gOffScreen.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
         gOffScreen.setColor(c);
         paint(gOffScreen);
-        g.drawImage(OffScreenImage,0,0,null);
+        g.drawImage(OffScreenImage, 0, 0, null);
     }
+
+
 }

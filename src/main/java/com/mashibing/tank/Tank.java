@@ -8,6 +8,10 @@ public class Tank {
     Dir dir = Dir.RIGHT;
     private TankFrame tf = null;
     private static final int SPEED = 10;
+
+    private static int WIDTH = ResourceMgr.tankD.getWidth();
+    private static int HEIGHT= ResourceMgr.tankD.getHeight();
+
     private boolean moving = false;
 
     public boolean isMoving() {
@@ -74,6 +78,10 @@ public class Tank {
         }
     }
     public  void fire() {
-        tf.bullets.add(new Bullet(this.x, this.y, this.dir,this.tf));
+        // 子弹左上角 = 坦克中心 - 子弹半宽/半高，使子弹中心落在坦克中心
+        int bx = this.x + Tank.WIDTH/2 - Bullet.WIDTH/2;
+        int by = this.y + Tank.HEIGHT/2 -Bullet.HEIGHT/2 ;
+
+        tf.bullets.add(new Bullet(bx, by, this.dir, this.tf));;
     }
 }
