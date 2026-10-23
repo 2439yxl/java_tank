@@ -9,18 +9,21 @@ public class Bullet
     public static int HEIGHT= ResourceMgr.bulletD.getHeight();
     private int x,y;
     private Dir dir;
-    private Boolean Live = true;
+    private Boolean living = true;
+    private Boolean isliving = living;
     private TankFrame tf;
-    public Bullet(int x, int y, Dir dir,TankFrame tf)
+    private Group group = Group.Bad;
+    public Bullet(int x, int y, Dir dir,Group group, TankFrame tf)
     {
         this.x = x;
         this.y = y;
         this.dir = dir;
+        this.group = group;
         this.tf = tf;
     }
     public void paint(Graphics g)
     {
-        if(!Live){
+        if(!living){
             tf.bullets.remove(this);
         }
 
@@ -49,8 +52,23 @@ public class Bullet
             case DOWN:  y += BULLET_SPEED; break;
         }
         if (x < 0 || y < 0 || x > TankFrame.GAME_WIDTH - 1 || y > TankFrame.GAME_HEIGHT - 1) {
-            Live = false;
+            living = false;
 
         }
+    }
+    public  void collideWith(Tank tank)
+    {
+        if(this.group ==tank.getGoup())return;
+        //一个rect记录子弹位置
+        Rectangle rect1 = new Rectangle(this.x, this.y, this.WIDTH, this.HEIGHT);
+        Rectangle rect2 = new Rectangle(tank.getX(), tank.getY(), Tank.WIDTH, Tank.HEIGHT);
+        if (rect1.intersects(rect2)) {
+            tank.die();
+            this.die();
+        }
+
+    }
+    private void die(){
+        this.living = false;
     }
 }

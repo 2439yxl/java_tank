@@ -1,18 +1,20 @@
 package com.mashibing.tank;
 
+import javax.swing.*;
 import java.awt.*;
+import java.util.Random;
 
 public class Tank {
-    int x;
-    int y;
-    Dir dir = Dir.RIGHT;
+    private int x, y;
+    private Dir dir = Dir.RIGHT;
     private TankFrame tf = null;
-    private static final int SPEED = 10;
+    private static final int SPEED = 2;
+    private Random random = new Random();
+    public static int WIDTH = ResourceMgr.tankD.getWidth();
+    public static int HEIGHT = ResourceMgr.tankD.getHeight();
+    private Group group = Group.Bad;
 
-    private static int WIDTH = ResourceMgr.tankD.getWidth();
-    private static int HEIGHT= ResourceMgr.tankD.getHeight();
-
-    private boolean moving = false;
+    private boolean moving = true;
 
     public boolean isMoving() {
         return moving;
@@ -30,15 +32,41 @@ public class Tank {
         this.dir = dir;
     }
 
-    public Tank(int x, int y, Dir dir,TankFrame tf) {
+    private boolean living = true;
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void die() {
+        this.living = false;
+    }
+
+    public Tank(int x, int y, Dir dir,Group group, TankFrame tf) {
         super();
         this.x = x;
         this.y = y;
         this.dir = dir;
+        this.group = group;
         this.tf = tf;
     }
 
     public void paint(Graphics g) {
+        if (!living) {
+            tf.tanks.remove(this);
+        }
         switch (dir) {
             case LEFT:
                 g.drawImage(ResourceMgr.tankL, this.x, this.y, null);
@@ -60,8 +88,9 @@ public class Tank {
 //        g.drawImage(ResourceMgr.tankL,x,y,null);
         move();
     }
-    private  void move() {
-        if(!moving) return;
+
+    private void move() {
+        if (!moving) return;
         switch (dir) {
             case LEFT:
                 x -= SPEED;
@@ -75,13 +104,23 @@ public class Tank {
             case DOWN:
                 y += SPEED;
                 break;
-        }
-    }
-    public  void fire() {
-        // 子弹左上角 = 坦克中心 - 子弹半宽/半高，使子弹中心落在坦克中心
-        int bx = this.x + Tank.WIDTH/2 - Bullet.WIDTH/2;
-        int by = this.y + Tank.HEIGHT/2 -Bullet.HEIGHT/2 ;
 
-        tf.bullets.add(new Bullet(bx, by, this.dir, this.tf));;
+        }
+        if(random.nextInt(10)>5) this.fire();
+    }
+
+    public void fire() {
+        // 子弹左上角 = 坦克中心 - 子弹半宽/半高，使子弹中心落在坦克中心
+        int bx = this.x + Tank.WIDTH / 2 - Bullet.WIDTH / 2;
+        int by = this.y + Tank.HEIGHT / 2 - Bullet.HEIGHT / 2;
+
+        tf.bullets.add(new Bullet(bx, by, this.dir,this.group, this.tf));
+        ;
+    }
+    public Group getGoup(){
+        return group;
+    }
+    public void setGoup(Group group){
+        this.group = group;
     }
 }
