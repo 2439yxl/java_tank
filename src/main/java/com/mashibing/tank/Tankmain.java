@@ -12,6 +12,7 @@ public class Tankmain {
         while(true){
             try {
                 Thread.sleep(50);
+                tf.repaint();
             }
             catch (InterruptedException e) {
                 e.printStackTrace();
