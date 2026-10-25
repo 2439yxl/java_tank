@@ -8,11 +8,12 @@ public class Tank {
     private int x, y;
     private Dir dir = Dir.RIGHT;
     private TankFrame tf = null;
-    private static final int SPEED = 2;
+    private static final int SPEED = 4;
     private Random random = new Random();
     public static int WIDTH = ResourceMgr.tankD.getWidth();
     public static int HEIGHT = ResourceMgr.tankD.getHeight();
     private Group group = Group.Bad;
+    Rectangle rect = new Rectangle();
 
     private boolean moving = true;
 
@@ -61,6 +62,10 @@ public class Tank {
         this.dir = dir;
         this.group = group;
         this.tf = tf;
+        rect.x = this.x;
+        rect.y = this.y;
+        rect.width = this.WIDTH;
+        rect.height = this.HEIGHT;
     }
 
     public void paint(Graphics g) {
@@ -109,6 +114,17 @@ public class Tank {
         if(this.group == Group.Bad && random.nextInt(100)>95) this.fire();
 
         if(this.group == Group.Bad && random.nextInt(100)>95) randomDir();
+        boundsCheck();
+        rect.x = this.x;
+        rect.y = this.y;
+    }
+
+    private void boundsCheck() {
+        if(x < 2) x = WIDTH - 2;
+        if(y < 2) y = HEIGHT - 2;
+        if(x > TankFrame.GAME_WIDTH - Tank.WIDTH - 2) x = TankFrame.GAME_WIDTH - Tank.WIDTH - 2;
+        if (y > TankFrame.GAME_HEIGHT - Tank.HEIGHT - 2) y = TankFrame.GAME_HEIGHT - Tank.HEIGHT - 2;
+
     }
     private void randomDir() {
         this.dir = Dir.values()[random.nextInt(4)];
@@ -120,12 +136,11 @@ public class Tank {
         int by = this.y + Tank.HEIGHT / 2 - Bullet.HEIGHT / 2;
 
         tf.bullets.add(new Bullet(bx, by, this.dir,this.group, this.tf));
-        ;
     }
-    public Group getGoup(){
+    public Group getGroup(){
         return group;
     }
-    public void setGoup(Group group){
+    public void setGroup(Group group){
         this.group = group;
     }
 }
