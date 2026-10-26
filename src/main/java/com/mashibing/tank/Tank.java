@@ -1,18 +1,17 @@
 package com.mashibing.tank;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
 
 public class Tank {
-    private int x, y;
-    private Dir dir = Dir.RIGHT;
-    private TankFrame tf = null;
+    int x, y;
+    Dir dir = Dir.RIGHT;
+    TankFrame tf = null;
     private static final int SPEED = 4;
     private Random random = new Random();
     public static int WIDTH = ResourceMgr.tankD.getWidth();
     public static int HEIGHT = ResourceMgr.tankD.getHeight();
-    private Group group = Group.Bad;
+    Group group = Group.Bad;
     Rectangle rect = new Rectangle();
 
     private boolean moving = true;
@@ -55,7 +54,9 @@ public class Tank {
         this.living = false;
     }
 
-    public Tank(int x, int y, Dir dir,Group group, TankFrame tf) {
+    FireStrategy fs;
+
+    public Tank(int x, int y, Dir dir, Group group, TankFrame tf) {
         super();
         this.x = x;
         this.y = y;
@@ -66,11 +67,25 @@ public class Tank {
         rect.y = this.y;
         rect.width = this.WIDTH;
         rect.height = this.HEIGHT;
+        if (group == Group.Good) {
+            String goodFSName = (String) PropertyMgr.get("GoodFS");
+            try {
+                fs = (FireStrategy) Class.forName(goodFSName)
+                        .getDeclaredConstructor()
+                        .newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+                fs = new FourDirFireStrategy();   // 兜底，避免 fs 为 null 导致 NPE
+            }
+        } else {
+            fs = new DefaultFireStrategy();
+        }
     }
 
     public void paint(Graphics g) {
         if (!living) {
             tf.tanks.remove(this);
+            return;
         }
         switch (dir) {
             case LEFT:
@@ -111,36 +126,35 @@ public class Tank {
                 break;
 
         }
-        if(this.group == Group.Bad && random.nextInt(100)>95) this.fire();
+        if (this.group == Group.Bad && random.nextInt(100) > 95) this.fire();
 
-        if(this.group == Group.Bad && random.nextInt(100)>95) randomDir();
+        if (this.group == Group.Bad && random.nextInt(100) > 95) randomDir();
         boundsCheck();
         rect.x = this.x;
         rect.y = this.y;
     }
 
     private void boundsCheck() {
-        if(x < 2) x = WIDTH - 2;
-        if(y < 2) y = HEIGHT - 2;
-        if(x > TankFrame.GAME_WIDTH - Tank.WIDTH - 2) x = TankFrame.GAME_WIDTH - Tank.WIDTH - 2;
+        if (x < 2) x = 2;
+        if (y < 20) y = 20;
+        if (x > TankFrame.GAME_WIDTH - Tank.WIDTH - 2) x = TankFrame.GAME_WIDTH - Tank.WIDTH - 2;
         if (y > TankFrame.GAME_HEIGHT - Tank.HEIGHT - 2) y = TankFrame.GAME_HEIGHT - Tank.HEIGHT - 2;
 
     }
+
     private void randomDir() {
         this.dir = Dir.values()[random.nextInt(4)];
     }
 
     public void fire() {
-        // 子弹左上角 = 坦克中心 - 子弹半宽/半高，使子弹中心落在坦克中心
-        int bx = this.x + Tank.WIDTH / 2 - Bullet.WIDTH / 2;
-        int by = this.y + Tank.HEIGHT / 2 - Bullet.HEIGHT / 2;
-
-        tf.bullets.add(new Bullet(bx, by, this.dir,this.group, this.tf));
+        fs.fire(this);
     }
-    public Group getGroup(){
+
+    public Group getGroup() {
         return group;
     }
-    public void setGroup(Group group){
+
+    public void setGroup(Group group) {
         this.group = group;
     }
 }
