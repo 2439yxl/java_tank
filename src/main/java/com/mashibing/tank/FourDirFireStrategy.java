@@ -9,7 +9,5 @@ public class FourDirFireStrategy implements FireStrategy{
         for (Dir dir : dirs) {
             new Bullet(bx,by,dir,t.group,t.tf);
         }
-
-        new Bullet(bx, by, t.dir,t.group, t.tf);
     }
 }
