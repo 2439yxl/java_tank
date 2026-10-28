@@ -1,37 +1,43 @@
 package com.mashibing.tank.abstractfactory;
 
+import com.mashibing.tank.GameModel;
 import com.mashibing.tank.ResourceMgr;
-import com.mashibing.tank.TankFrame;
 
 import java.awt.*;
 
 public class RectExplode extends BaseExplode {
-    @Override
-    public void paint(Graphics g){
-//        g.drawImage(ResourceMgr.explodes[step++],x,y,null);
-        Color c = g.getColor();
-        g.setColor(Color.RED);
-        g.fillRect(0,0,10*step,10*step);
-        if(step >= 5){
-            tf.explodes.remove(this);
-            g.setColor(c);
-        }
-    }
-
-
 
     public static int WIDTH = ResourceMgr.explodes[0].getWidth();
     public static int HEIGHT = ResourceMgr.explodes[0].getHeight();
+    private final GameModel model;
 
     private int x, y;
-    //     private boolean living = true;
-    TankFrame tf = null;
     private int step = 0;
 
-    public RectExplode(int x, int y, TankFrame tf) {
+    // model 字段由 BaseExplode 提供（protected GameModel model;）
+    public RectExplode(int x, int y, GameModel model) {
         this.x = x;
         this.y = y;
-        this.tf = tf;
-
+        this.model = model;
     }
- }
+
+    public boolean isFinished() {
+        return step >= 5;
+    }
+
+    /** 只负责绘制，不做任何状态变更/清理。 */
+    @Override
+    public void paint(Graphics g) {
+        if (isFinished()) return;
+
+        Color c = g.getColor();
+        g.setColor(Color.RED);
+
+        int size = 10 * step;
+        g.fillRect(x - size / 2, y - size / 2, size, size);
+
+        g.setColor(c);
+
+        step++;   // 仅推进动画帧，不删自己
+    }
+}

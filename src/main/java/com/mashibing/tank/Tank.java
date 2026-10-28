@@ -8,63 +8,41 @@ import java.util.Random;
 public class Tank extends BaseTank {
     int x, y;
     Dir dir = Dir.RIGHT;
-    TankFrame tf = null;
+    GameModel model = null;
     private static final int SPEED = 4;
     private Random random = new Random();
     public static int WIDTH = ResourceMgr.tankD.getWidth();
     public static int HEIGHT = ResourceMgr.tankD.getHeight();
-    Group group = Group.Bad;
-    Rectangle rect = new Rectangle();
+    public Group group = Group.Bad;
+    public Rectangle rect = new Rectangle();
 
     private boolean moving = true;
-
-    public boolean isMoving() {
-        return moving;
-    }
-
-    public void setMoving(boolean moving) {
-        this.moving = moving;
-    }
-
-    public Dir getDir() {
-        return dir;
-    }
-
-    public void setDir(Dir dir) {
-        this.dir = dir;
-    }
-
     private boolean living = true;
 
-    public void setX(int x) {
-        this.x = x;
-    }
+    public boolean isLiving() { return living; }
 
-    public void setY(int y) {
-        this.y = y;
-    }
+    public boolean isMoving() { return moving; }
+    public void setMoving(boolean moving) { this.moving = moving; }
 
-    public int getX() {
-        return x;
-    }
+    public Dir getDir() { return dir; }
+    public void setDir(Dir dir) { this.dir = dir; }
 
-    public int getY() {
-        return y;
-    }
+    public void setX(int x) { this.x = x; }
+    public void setY(int y) { this.y = y; }
+    public int getX() { return x; }
+    public int getY() { return y; }
 
-    public void die() {
-        this.living = false;
-    }
+    public void die() { this.living = false; }
 
     FireStrategy fs;
 
-    public Tank(int x, int y, Dir dir, Group group, TankFrame tf) {
+    public Tank(int x, int y, Dir dir, Group group, GameModel model) {
         super();
         this.x = x;
         this.y = y;
         this.dir = dir;
         this.group = group;
-        this.tf = tf;
+        this.model = model;
         rect.x = this.x;
         rect.y = this.y;
         rect.width = this.WIDTH;
@@ -77,59 +55,34 @@ public class Tank extends BaseTank {
                         .newInstance();
             } catch (Exception e) {
                 e.printStackTrace();
-                fs = new FourDirFireStrategy();   // 兜底，避免 fs 为 null 导致 NPE
+                fs = new FourDirFireStrategy();
             }
         } else {
             fs = new DefaultFireStrategy();
         }
     }
 
+    /** 只负责绘制。 */
     public void paint(Graphics g) {
-        if (!living) {
-            tf.tanks.remove(this);
-            return;
-        }
+        if (!living) return;
         switch (dir) {
-            case LEFT:
-                g.drawImage(ResourceMgr.tankL, this.x, this.y, null);
-                break;
-            case RIGHT:
-                g.drawImage(ResourceMgr.tankR, this.x, this.y, null);
-                break;
-            case UP:
-                g.drawImage(ResourceMgr.tankU, this.x, this.y, null);
-                break;
-            case DOWN:
-                g.drawImage(ResourceMgr.tankD, this.x, this.y, null);
-                break;
+            case LEFT:  g.drawImage(ResourceMgr.tankL, this.x, this.y, null); break;
+            case RIGHT: g.drawImage(ResourceMgr.tankR, this.x, this.y, null); break;
+            case UP:    g.drawImage(ResourceMgr.tankU, this.x, this.y, null); break;
+            case DOWN:  g.drawImage(ResourceMgr.tankD, this.x, this.y, null); break;
         }
-//        Color c = g.getColor();
-//        g.setColor(Color.RED);
-//        g.fillRect(x, y, 40, 40);
-//        g.setColor(c);
-//        g.drawImage(ResourceMgr.tankL,x,y,null);
-        move();
     }
 
-    private void move() {
-        if (!moving) return;
+    /** 由 GameModel.update() 显式调用。 */
+    public void move() {
+        if (!living || !moving) return;
         switch (dir) {
-            case LEFT:
-                x -= SPEED;
-                break;
-            case UP:
-                y -= SPEED;
-                break;
-            case RIGHT:
-                x += SPEED;
-                break;
-            case DOWN:
-                y += SPEED;
-                break;
-
+            case LEFT:  x -= SPEED; break;
+            case UP:    y -= SPEED; break;
+            case RIGHT: x += SPEED; break;
+            case DOWN:  y += SPEED; break;
         }
         if (this.group == Group.Bad && random.nextInt(100) > 95) this.fire();
-
         if (this.group == Group.Bad && random.nextInt(100) > 95) randomDir();
         boundsCheck();
         rect.x = this.x;
@@ -141,22 +94,14 @@ public class Tank extends BaseTank {
         if (y < 20) y = 20;
         if (x > TankFrame.GAME_WIDTH - Tank.WIDTH - 2) x = TankFrame.GAME_WIDTH - Tank.WIDTH - 2;
         if (y > TankFrame.GAME_HEIGHT - Tank.HEIGHT - 2) y = TankFrame.GAME_HEIGHT - Tank.HEIGHT - 2;
-
     }
 
     private void randomDir() {
         this.dir = Dir.values()[random.nextInt(4)];
     }
 
-    public void fire() {
-        fs.fire(this);
-    }
+    public void fire() { fs.fire(this); }
 
-    public Group getGroup() {
-        return group;
-    }
-
-    public void setGroup(Group group) {
-        this.group = group;
-    }
+    public Group getGroup() { return group; }
+    public void setGroup(Group group) { this.group = group; }
 }

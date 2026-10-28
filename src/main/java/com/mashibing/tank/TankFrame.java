@@ -1,36 +1,31 @@
 package com.mashibing.tank;
 
-import com.mashibing.tank.abstractfactory.BaseExplode;
-import com.mashibing.tank.abstractfactory.GameFactory;
-import com.mashibing.tank.abstractfactory.RectFactory;
-
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * View 层：窗口 + 双缓冲渲染。输入事件转发给 Controller。
+ */
 public class TankFrame extends Frame {
-    Tank myTank = new Tank(400, 400, Dir.DOWN, Group.Good,this);
-    public List<Bullet> bullets = new ArrayList<>();
-    public List<Tank> tanks = new ArrayList<>();
-    public List<BaseExplode>  explodes = new ArrayList<>();
-    GameFactory gf = new RectFactory();
-//    Explode e = new Explode(100,100,this);
 
-    Bullet b = new Bullet(200, 200, Dir.DOWN, Group.Good,this);
-    static final int GAME_WIDTH = 1200, GAME_HEIGHT = 750;
+    public static final int GAME_WIDTH = 1200, GAME_HEIGHT = 750;
+
+    private final GameModel model;
+    private final TankController controller;
+    private Image offScreenImage = null;
 
     public TankFrame() {
+        this.model = new GameModel();
+        this.controller = new TankController(model);
+
         setSize(GAME_WIDTH, GAME_HEIGHT);
         setResizable(false);
         setTitle("tank war");
         setVisible(true);
 
-
-        this.addKeyListener(new MyKeyListener());
+        // View 只转发按键，不处理逻辑
+        this.addKeyListener(controller);
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -40,124 +35,25 @@ public class TankFrame extends Frame {
         });
     }
 
-    Image OffScreenImage = null;
+    public GameModel getModel() { return model; }
+    public TankController getController() { return controller; }
 
     @Override
     public void paint(Graphics g) {
-        Color c = g.getColor();
-        g.setColor(Color.WHITE);
-        g.drawString("子弹的数量：" + bullets.size(), 10, 60);
-        g.drawString("坦克的数量：" + tanks.size(), 10, 80);
-        g.drawString("爆炸的数量：" + explodes.size(), 10, 100);
-
-        g.setColor(c);
-
-        myTank.paint(g);
-        for (int j = 0; j < bullets.size(); j++) {
-            bullets.get(j).paint(g);
-        }
-        for (int j = 0; j < tanks.size(); j++) {
-            tanks.get(j).paint(g);
-        }
-        for (int j = 0; j < explodes.size(); j++) {
-            explodes.get(j).paint(g);
-        }
-        for (int j = 0; j < bullets.size(); j++) {
-            for(int k = 0; k < tanks.size(); k++){
-                bullets.get(j).collideWith(tanks.get(k));
-            }
-        }
-//        e.paint(g);
-
-    }
-
-    class MyKeyListener extends KeyAdapter {
-
-        boolean bL = false;
-        boolean bU = false;
-        boolean bR = false;
-        boolean bD = false;
-
-        public void move() {
-        }
-
-        public void setMainTankDir() {
-            if (!bL && !bU && !bR && !bD) myTank.setMoving(false);
-            else {
-                myTank.setMoving(true);
-                if (bL) myTank.setDir(Dir.LEFT);
-                if (bR) myTank.setDir(Dir.RIGHT);
-                if (bU) myTank.setDir(Dir.UP);
-                if (bD) myTank.setDir(Dir.DOWN);
-            }
-        }
-
-        @Override
-        public void keyPressed(KeyEvent e) {
-            int code = e.getKeyCode();
-            switch (code) {
-                case KeyEvent.VK_LEFT:
-                    bL = true;
-                    break;
-                case KeyEvent.VK_RIGHT:
-                    bR = true;
-                    break;
-                case KeyEvent.VK_UP:
-                    bU = true;
-                    break;
-                case KeyEvent.VK_DOWN:
-                    bD = true;
-                    break;
-
-                case KeyEvent.VK_SPACE:
-                    myTank.fire();
-                    break;
-
-                default:
-                    break;
-            }
-//            System.out.println("keyPressed");
-//            x += 100;
-            setMainTankDir();
-        }
-
-        @Override
-        public void keyReleased(KeyEvent e) {
-            int code = e.getKeyCode();
-            switch (code) {
-                case KeyEvent.VK_LEFT:
-                    bL = false;
-                    break;
-                case KeyEvent.VK_RIGHT:
-                    bR = false;
-                    break;
-                case KeyEvent.VK_UP:
-                    bU = false;
-                    break;
-                case KeyEvent.VK_DOWN:
-                    bD = false;
-                    break;
-                default:
-                    break;
-
-            }
-            setMainTankDir();
-        }
+        model.paint(g);   // 只画
     }
 
     @Override
     public void update(Graphics g) {
-        if (OffScreenImage == null) {
-            OffScreenImage = this.createImage(GAME_WIDTH, GAME_HEIGHT);
+        if (offScreenImage == null) {
+            offScreenImage = this.createImage(GAME_WIDTH, GAME_HEIGHT);
         }
-        Graphics gOffScreen = OffScreenImage.getGraphics();
+        Graphics gOffScreen = offScreenImage.getGraphics();
         Color c = gOffScreen.getColor();
         gOffScreen.setColor(Color.BLACK);
         gOffScreen.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
         gOffScreen.setColor(c);
         paint(gOffScreen);
-        g.drawImage(OffScreenImage, 0, 0, null);
+        g.drawImage(offScreenImage, 0, 0, null);
     }
-
-
 }

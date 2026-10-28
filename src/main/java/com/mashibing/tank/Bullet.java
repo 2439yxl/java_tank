@@ -4,56 +4,47 @@ import com.mashibing.tank.abstractfactory.BaseBullet;
 
 import java.awt.*;
 
-public class Bullet extends BaseBullet
-{
-    private  static final float BULLET_SPEED = 20;
+public class Bullet extends BaseBullet {
+
+    private static final float BULLET_SPEED = 20;
     public static int WIDTH = ResourceMgr.bulletD.getWidth();
-    public static int HEIGHT= ResourceMgr.bulletD.getHeight();
-    Rectangle rect = new Rectangle(0,0,WIDTH,HEIGHT);
-    private int x,y;
+    public static int HEIGHT = ResourceMgr.bulletD.getHeight();
+    Rectangle rect = new Rectangle(0, 0, WIDTH, HEIGHT);
+    private int x, y;
     private Dir dir;
-    private Boolean living = true;
-    private Boolean isliving = living;
-    private TankFrame tf;
+    private boolean living = true;
+    private GameModel model;
     private Group group = Group.Bad;
-    public Bullet(int x, int y, Dir dir,Group group, TankFrame tf)
-    {
+
+    public Bullet(int x, int y, Dir dir, Group group, GameModel model) {
         this.x = x;
         this.y = y;
         this.dir = dir;
         this.group = group;
-        this.tf = tf;
+        this.model = model;
         rect.x = this.x;
         rect.y = this.y;
         rect.width = this.WIDTH;
         rect.height = this.HEIGHT;
-        tf.bullets.add(this);
-
+        model.bullets.add(this);
     }
-    public void paint(Graphics g)
-    {
-        if(!living){
-            tf.bullets.remove(this);
-        }
 
+    public boolean isLiving() { return living; }
+
+    /** 只负责绘制。 */
+    public void paint(Graphics g) {
+        if (!living) return;
         switch (dir) {
-            case LEFT:
-                g.drawImage(ResourceMgr.bulletL, this.x, this.y, null);
-                break;
-            case RIGHT:
-                g.drawImage(ResourceMgr.bulletR, this.x, this.y, null);
-                break;
-            case UP:
-                g.drawImage(ResourceMgr.bulletU, this.x, this.y, null);
-                break;
-            case DOWN:
-                g.drawImage(ResourceMgr.bulletD, this.x, this.y, null);
-                break;
+            case LEFT:  g.drawImage(ResourceMgr.bulletL, this.x, this.y, null); break;
+            case RIGHT: g.drawImage(ResourceMgr.bulletR, this.x, this.y, null); break;
+            case UP:    g.drawImage(ResourceMgr.bulletU, this.x, this.y, null); break;
+            case DOWN:  g.drawImage(ResourceMgr.bulletD, this.x, this.y, null); break;
         }
-
-        move();
     }
-    private void move() {
+
+    /** 由 GameModel.update() 显式调用。 */
+    public void move() {
+        if (!living) return;
         switch (dir) {
             case LEFT:  x -= BULLET_SPEED; break;
             case RIGHT: x += BULLET_SPEED; break;
@@ -62,26 +53,20 @@ public class Bullet extends BaseBullet
         }
         rect.x = this.x;
         rect.y = this.y;
-
         if (x < 0 || y < 0 || x > TankFrame.GAME_WIDTH - 1 || y > TankFrame.GAME_HEIGHT - 1) {
             living = false;
-
         }
     }
-    public  void collideWith(Tank tank)
-    {
-        if(this.group ==tank.getGroup())return;
-        //一个rect记录子弹位置
-        Rectangle rect1 = new Rectangle(this.x, this.y, this.WIDTH, this.HEIGHT);
-        Rectangle rect2 = new Rectangle(tank.getX(), tank.getY(), Tank.WIDTH, Tank.HEIGHT);
+
+    public void collideWith(Tank tank) {
+        if (!living) return;
+        if (this.group == tank.getGroup()) return;
         if (rect.intersects(tank.rect)) {
             tank.die();
             this.die();
-            tf.explodes.add(tf.gf.createExplode(x,y,tf));
+            model.explodes.add(model.gf.createExplode(x, y, model));
         }
+    }
 
-    }
-    private void die(){
-        this.living = false;
-    }
+    private void die() { this.living = false; }
 }
