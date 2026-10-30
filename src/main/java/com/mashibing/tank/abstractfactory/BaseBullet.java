@@ -7,7 +7,7 @@ import java.awt.*;
 
 public abstract class BaseBullet {
     public abstract void paint(Graphics g);
-    public abstract void collideWith(Tank tank);
+    public abstract boolean collideWith(Tank tank);
     protected GameModel model;
 
     public void move() {

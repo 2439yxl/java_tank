@@ -1,4 +1,7 @@
 package com.mashibing.tank.abstractfactory;
 
-public class BaseTank {
+public abstract class BaseTank {
+    public abstract int getWidth();
+
+    public abstract int getHeight();
 }

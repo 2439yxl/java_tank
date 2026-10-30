@@ -10,13 +10,13 @@ public class Explode extends BaseExplode {
     public static int HEIGHT = ResourceMgr.explodes[0].getHeight();
 
     private int x, y;
-    GameModel model = null;
+//    GameModel model = null;
     private int step = 0;
 
     public Explode(int x, int y, GameModel model) {
         this.x = x;
         this.y = y;
-        this.model = model;
+//        this.model = model;
     }
 
     public boolean isFinished() {
@@ -27,5 +27,8 @@ public class Explode extends BaseExplode {
     public void paint(Graphics g) {
         if (isFinished()) return;
         g.drawImage(ResourceMgr.explodes[step++], x, y, null);
+        if (step == ResourceMgr.explodes.length) {
+            GameModel.getInstance().remove(this);
+        }
     }
 }

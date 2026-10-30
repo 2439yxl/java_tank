@@ -67,14 +67,15 @@ public class RectBullet extends BaseBullet {
     }
 
     @Override
-    public void collideWith(Tank tank) {
-        if (!living) return;
-        if (this.group == tank.getGroup()) return;
+    public boolean collideWith(Tank tank) {
+        if (!living) return false;
+        if (this.group == tank.getGroup()) return false;
         if (rect.intersects(tank.rect)) {
             tank.die();
             this.die();
             model.explodes.add(model.gf.createExplode(x, y, model));
         }
+        return false;
     }
 
     private void die() {

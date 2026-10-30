@@ -1,14 +1,17 @@
 package com.mashibing.tank;
 
 import com.mashibing.tank.abstractfactory.BaseTank;
+import com.mashibing.tank.strategy.DefaultFireStrategy;
+import com.mashibing.tank.strategy.FireStrategy;
 
 import java.awt.*;
 import java.util.Random;
 
 public class Tank extends BaseTank {
-    int x, y;
+    public int x, y;
+    public int oldX, oldY;
     Dir dir = Dir.RIGHT;
-    GameModel model = null;
+    public GameModel model = null;
     private static final int SPEED = 4;
     private Random random = new Random();
     public static int WIDTH = ResourceMgr.tankD.getWidth();
@@ -55,13 +58,22 @@ public class Tank extends BaseTank {
                         .newInstance();
             } catch (Exception e) {
                 e.printStackTrace();
-                fs = new FourDirFireStrategy();
+                fs = new DefaultFireStrategy();
             }
         } else {
             fs = new DefaultFireStrategy();
         }
+        GameModel.getInstance().add(this);
     }
 
+    @Override
+    public int getWidth(){
+        return WIDTH;
+    }
+    @Override
+    public int getHeight(){
+        return HEIGHT;
+    }
     /** 只负责绘制。 */
     public void paint(Graphics g) {
         if (!living) return;
@@ -72,9 +84,16 @@ public class Tank extends BaseTank {
             case DOWN:  g.drawImage(ResourceMgr.tankD, this.x, this.y, null); break;
         }
     }
+    public void back(){
+        x = oldX;
+        y = oldY;
+    }
 
     /** 由 GameModel.update() 显式调用。 */
     public void move() {
+
+         oldX = x;
+         oldY = y;
         if (!living || !moving) return;
         switch (dir) {
             case LEFT:  x -= SPEED; break;
@@ -104,4 +123,6 @@ public class Tank extends BaseTank {
 
     public Group getGroup() { return group; }
     public void setGroup(Group group) { this.group = group; }
+
+
 }

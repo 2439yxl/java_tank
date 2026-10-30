@@ -1,6 +1,10 @@
-package com.mashibing.tank;
+package com.mashibing.tank.strategy;
 
-public class FourDirFireStrategy implements FireStrategy{
+import com.mashibing.tank.Bullet;
+import com.mashibing.tank.Dir;
+import com.mashibing.tank.Tank;
+
+public class FourDirFireStrategy implements FireStrategy {
     @Override
     public void fire(Tank t){
         int bx = t.x + Tank.WIDTH / 2 - Bullet.WIDTH / 2;

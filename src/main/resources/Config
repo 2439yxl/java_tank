@@ -5,5 +5,7 @@ bulletSpeed=10
 gamewidth=1600
 gameheight=1000
 #fireStratey
-GoodFS=com.mashibing.tank.FourDirFireStrategy
-BadFS=com.mashibing.tank.DefaultFireStrategy
+GoodFS=com.mashibing.tank.strategy.FourDirFireStrategy
+BadFS=com.mashibing.tank.strategy.DefaultFireStrategy
+#colliders
+collider=com.mashibng.tank.cor.BulletTankCollider,com.tank.cor.TankTankCollider
