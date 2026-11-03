@@ -13,10 +13,10 @@ public class Bullet extends BaseBullet {
     private int x, y;
     private Dir dir;
     private boolean living = true;
-    private GameModel model = null;
+    private GameModel model;
     public Group group = Group.Bad;
 
-    public Bullet(int x, int y, Dir dir, Group group) {
+    public Bullet(int x, int y, Dir dir, Group group, GameModel model) {
         this.x = x;
         this.y = y;
         this.dir = dir;
@@ -26,24 +26,22 @@ public class Bullet extends BaseBullet {
         rect.y = this.y;
         rect.width = this.WIDTH;
         rect.height = this.HEIGHT;
-        GameModel.getInstance().add(this);
+        model.add(this);
     }
 
-    public boolean isLiving() { return living; }
+    public boolean isLiving() {
+        return living;
+    }
 
-    /** 只负责绘制。 */
     public void paint(Graphics g) {
-        if (!living) GameModel.getInstance().remove(this);
         switch (dir) {
             case LEFT:  g.drawImage(ResourceMgr.bulletL, this.x, this.y, null); break;
             case RIGHT: g.drawImage(ResourceMgr.bulletR, this.x, this.y, null); break;
             case UP:    g.drawImage(ResourceMgr.bulletU, this.x, this.y, null); break;
             case DOWN:  g.drawImage(ResourceMgr.bulletD, this.x, this.y, null); break;
         }
-
     }
 
-    /** 由 GameModel.update() 显式调用。 */
     public void move() {
         if (!living) return;
         switch (dir) {
@@ -66,21 +64,14 @@ public class Bullet extends BaseBullet {
             tank.die();
             this.die();
             int eX = tank.getX() + Tank.WIDTH / 2 - Explode.WIDTH / 2;
-            int eY = tank.getY() + Tank.HEIGHT / 2 - Explode.HEIGHT /2;
-            model.explodes.add(model.gf.createExplode(x, y, model));
-            model.add(new Explode(eX,eY,model));
+            int eY = tank.getY() + Tank.HEIGHT / 2 - Explode.HEIGHT / 2;
+            model.add(new Explode(eX, eY, model));
             return true;
         }
         return false;
     }
 
-    @Override
-    public int getWidth(){
-        return WIDTH;
+    public void die() {
+        this.living = false;
     }
-    @Override
-    public int getHeight(){
-        return HEIGHT;
-    }
-    public void die() { this.living = false; }
 }

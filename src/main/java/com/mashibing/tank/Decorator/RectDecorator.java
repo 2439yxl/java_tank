@@ -17,7 +17,7 @@ public class RectDecorator extends GODecorator{
         g.setColor(c);
     }
     @Override
-    public  int getWidth(){
+    public int getWidth(){
         return super.go.getWidth();
     }
     @Override

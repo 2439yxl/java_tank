@@ -4,9 +4,6 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-/**
- * View 层：窗口 + 双缓冲渲染。输入事件转发给 Controller。
- */
 public class TankFrame extends Frame {
 
     public static final int GAME_WIDTH = 1200, GAME_HEIGHT = 750;
@@ -16,7 +13,7 @@ public class TankFrame extends Frame {
     private Image offScreenImage = null;
 
     public TankFrame() {
-        this.model = new GameModel();
+        this.model = GameModel.getInstance();  // 用单例
         this.controller = new TankController(model);
 
         setSize(GAME_WIDTH, GAME_HEIGHT);
@@ -24,7 +21,6 @@ public class TankFrame extends Frame {
         setTitle("tank war");
         setVisible(true);
 
-        // View 只转发按键，不处理逻辑
         this.addKeyListener(controller);
 
         addWindowListener(new WindowAdapter() {
@@ -35,12 +31,17 @@ public class TankFrame extends Frame {
         });
     }
 
-    public GameModel getModel() { return model; }
-    public TankController getController() { return controller; }
+    public GameModel getModel() {
+        return model;
+    }
+
+    public TankController getController() {
+        return controller;
+    }
 
     @Override
     public void paint(Graphics g) {
-        model.paint(g);   // 只画
+        model.paint(g);
     }
 
     @Override

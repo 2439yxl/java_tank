@@ -2,7 +2,10 @@ package com.mashibing.tank.cor;
 
 import com.mashibing.tank.*;
 
+import java.awt.*;
+
 public class TankWallCollder implements Collider {
+    public TankWallCollder() {}
     @Override
     public boolean collide(GameObject o1, GameObject o2) {
         if (o1 instanceof Tank && o2 instanceof Wall) {
@@ -21,5 +24,10 @@ public class TankWallCollder implements Collider {
         } else if (o1 instanceof Wall && o2 instanceof Tank) {
             return collide(o2, o1);
         } return true;
+    }
+
+    @Override
+    public boolean collide(Graphics o1, Graphics o2) {
+        return false;
     }
 }

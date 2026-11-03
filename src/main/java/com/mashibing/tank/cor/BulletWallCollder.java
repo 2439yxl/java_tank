@@ -2,6 +2,8 @@ package com.mashibing.tank.cor;
 
 import com.mashibing.tank.*;
 
+import java.awt.*;
+
 public class BulletWallCollder implements Collider {
     @Override
     public boolean collide(GameObject o1, GameObject o2) {
@@ -21,5 +23,10 @@ public class BulletWallCollder implements Collider {
         } else if (o1 instanceof Wall && o2 instanceof Bullet) {
             return collide(o2, o1);
         } return true;
+    }
+
+    @Override
+    public boolean collide(Graphics o1, Graphics o2) {
+        return false;
     }
 }

@@ -4,8 +4,6 @@ import java.awt.*;
 
 public abstract class BaseExplode {
     public abstract void paint(Graphics g);
-
-    public boolean isFinished() {
-        return false;
-    }
+    public abstract void update();
+    public abstract boolean isFinished();
 }

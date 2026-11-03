@@ -11,33 +11,28 @@ public class Tank extends BaseTank {
     public int x, y;
     public int oldX, oldY;
     Dir dir = Dir.RIGHT;
-    public GameModel model = null;
+    public transient GameModel model = null;   // transient 避免序列化循环
     private static final int SPEED = 4;
-    private Random random = new Random();
+    private transient Random random = new Random();
     public static int WIDTH = ResourceMgr.tankD.getWidth();
     public static int HEIGHT = ResourceMgr.tankD.getHeight();
     public Group group = Group.Bad;
     public Rectangle rect = new Rectangle();
-
     private boolean moving = true;
     private boolean living = true;
 
-    public boolean isLiving() { return living; }
+    transient FireStrategy fs;
 
+    public boolean isLiving() { return living; }
     public boolean isMoving() { return moving; }
     public void setMoving(boolean moving) { this.moving = moving; }
-
     public Dir getDir() { return dir; }
     public void setDir(Dir dir) { this.dir = dir; }
-
     public void setX(int x) { this.x = x; }
     public void setY(int y) { this.y = y; }
     public int getX() { return x; }
     public int getY() { return y; }
-
     public void die() { this.living = false; }
-
-    FireStrategy fs;
 
     public Tank(int x, int y, Dir dir, Group group, GameModel model) {
         super();
@@ -54,8 +49,7 @@ public class Tank extends BaseTank {
             String goodFSName = (String) PropertyMgr.get("GoodFS");
             try {
                 fs = (FireStrategy) Class.forName(goodFSName)
-                        .getDeclaredConstructor()
-                        .newInstance();
+                        .getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 e.printStackTrace();
                 fs = new DefaultFireStrategy();
@@ -63,18 +57,14 @@ public class Tank extends BaseTank {
         } else {
             fs = new DefaultFireStrategy();
         }
-        GameModel.getInstance().add(this);
+        model.add(this);
     }
 
     @Override
-    public int getWidth(){
-        return WIDTH;
-    }
+    public int getWidth() { return WIDTH; }
     @Override
-    public int getHeight(){
-        return HEIGHT;
-    }
-    /** 只负责绘制。 */
+    public int getHeight() { return HEIGHT; }
+
     public void paint(Graphics g) {
         if (!living) return;
         switch (dir) {
@@ -84,16 +74,15 @@ public class Tank extends BaseTank {
             case DOWN:  g.drawImage(ResourceMgr.tankD, this.x, this.y, null); break;
         }
     }
-    public void back(){
+
+    public void back() {
         x = oldX;
         y = oldY;
     }
 
-    /** 由 GameModel.update() 显式调用。 */
     public void move() {
-
-         oldX = x;
-         oldY = y;
+        oldX = x;
+        oldY = y;
         if (!living || !moving) return;
         switch (dir) {
             case LEFT:  x -= SPEED; break;
@@ -119,10 +108,10 @@ public class Tank extends BaseTank {
         this.dir = Dir.values()[random.nextInt(4)];
     }
 
-    public void fire() { fs.fire(this); }
+    public void fire() {
+        fs.fire(this);
+    }
 
     public Group getGroup() { return group; }
     public void setGroup(Group group) { this.group = group; }
-
-
 }
