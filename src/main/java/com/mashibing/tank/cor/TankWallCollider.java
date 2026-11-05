@@ -4,8 +4,8 @@ import com.mashibing.tank.*;
 
 import java.awt.*;
 
-public class TankWallCollder implements Collider {
-    public TankWallCollder() {}
+public class TankWallCollider implements Collider {
+    public TankWallCollider() {}
     @Override
     public boolean collide(GameObject o1, GameObject o2) {
         if (o1 instanceof Tank && o2 instanceof Wall) {

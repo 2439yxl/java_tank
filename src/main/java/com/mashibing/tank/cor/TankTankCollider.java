@@ -3,17 +3,24 @@ package com.mashibing.tank.cor;
 import com.mashibing.tank.GameObject;
 import com.mashibing.tank.Tank;
 
-public class TankTankCollider implements Collider{
+import java.awt.*;
+
+public class TankTankCollider implements Collider {
     @Override
-    public boolean collider(GameObject o1, GameObject o2) {
-        if(o1 instanceof Tank && o2 instanceof Tank) {
-            Tank t1 = (Tank)o1;
-            Tank t2 = (Tank)o2;
-            if(t1.getRect().intersects(t2.getRect())){
+    public boolean collide(GameObject o1, GameObject o2) {
+        if (o1 instanceof Tank && o2 instanceof Tank) {
+            Tank t1 = (Tank) o1;
+            Tank t2 = (Tank) o2;
+            if (t1.rect.intersects(t2.rect)) {
                 t1.back();
                 t2.back();
             }
         }
-            return true;
+        return true;
+    }
+
+    @Override
+    public boolean collide(Graphics o1, Graphics o2) {
+        return false;
     }
 }

@@ -140,6 +140,7 @@ public class GameModel {
 
     // ---------- 存档 ----------
     public void save() {
+
         File f = new File("c:/mashibing/tank.data");
         File dir = f.getParentFile();
         if (dir != null && !dir.exists()) dir.mkdirs();

@@ -7,7 +7,7 @@ import java.awt.*;
 public class BulletTankCollider implements Collider {
     @Override
     public boolean collide(GameObject o1, GameObject o2) {
-        return false;
+        return true;
     }
 
     @Override

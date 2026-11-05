@@ -14,6 +14,9 @@ public class RectExplode extends BaseExplode {
     private int x, y;
     private int step = 0;
 
+    @Override
+    public void update(){}
+
     // model 字段由 BaseExplode 提供（protected GameModel model;）
     public RectExplode(int x, int y, GameModel model) {
         this.x = x;

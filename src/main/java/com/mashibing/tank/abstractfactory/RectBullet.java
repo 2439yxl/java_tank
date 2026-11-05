@@ -1,11 +1,6 @@
 package com.mashibing.tank.abstractfactory;
 
-import com.mashibing.tank.Dir;
-import com.mashibing.tank.GameModel;
-import com.mashibing.tank.Group;
-import com.mashibing.tank.ResourceMgr;
-import com.mashibing.tank.Tank;
-import com.mashibing.tank.TankFrame;
+import com.mashibing.tank.*;
 
 import java.awt.*;
 
@@ -14,12 +9,13 @@ public class RectBullet extends BaseBullet {
     private static final float BULLET_SPEED = 20;
     public static int WIDTH = ResourceMgr.bulletD.getWidth();
     public static int HEIGHT = ResourceMgr.bulletD.getHeight();
+    private GameModel model;
 
     private Rectangle rect = new Rectangle(0, 0, WIDTH, HEIGHT);
     private int x, y;
     private Dir dir;
     private boolean living = true;
-    private Group group = Group.Bad;
+    private Group group;
 
     // model 字段由 BaseBullet 提供（protected GameModel model;）
     public RectBullet(int x, int y, Dir dir, Group group, GameModel model) {
@@ -73,7 +69,9 @@ public class RectBullet extends BaseBullet {
         if (rect.intersects(tank.rect)) {
             tank.die();
             this.die();
-            model.explodes.add(model.gf.createExplode(x, y, model));
+            int eX = tank.getX() + Tank.WIDTH / 2 - Explode.WIDTH / 2;
+            int eY = tank.getY() + Tank.HEIGHT / 2 - Explode.HEIGHT / 2;
+            model.add(new Explode(eX, eY, model));
         }
         return false;
     }

@@ -5,6 +5,8 @@ import com.mashibing.tank.GameObject;
 import java.awt.*;
 
 public class RectDecorator extends GODecorator{
+    private int width = super.getWidth();
+    private int height = super.getHeight();
     public RectDecorator(GameObject go) {
         super(go);
     }
@@ -13,7 +15,7 @@ public class RectDecorator extends GODecorator{
         super.paint(g);
         Color c = g.getColor();
         g.setColor(Color.RED);
-        g.drawImage(super.go.x,super.go.y,super.go.getWidth()+2,super.go.getHeight()+2);
+        g.drawRect(super.go.x,super.go.y,width+2,height+2);
         g.setColor(c);
     }
     @Override
