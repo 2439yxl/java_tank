@@ -3,6 +3,8 @@ package com.mashibing.tank;
 import com.mashibing.tank.abstractfactory.BaseTank;
 
 import java.awt.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Random;
 
 public class Tank extends BaseTank {
@@ -10,13 +12,13 @@ public class Tank extends BaseTank {
     public int oldX, oldY;
 
     public Dir dir = Dir.UP;
-    public transient GameModel model;   // transient 避免序列化循环
+    public transient GameModel model;
     private static final int SPEED = 4;
-    private final transient Random random = new Random();
+    private transient Random random = new Random();
     public static int WIDTH = ResourceMgr.BadtankD.getWidth();
     public static int HEIGHT = ResourceMgr.BadtankD.getHeight();
     public Group group = Group.Bad;
-    public Rectangle rect = new Rectangle();
+    public transient Rectangle rect = new Rectangle();
     private boolean moving = true;
     private boolean living = true;
 
@@ -113,9 +115,9 @@ public class Tank extends BaseTank {
         }
         if (this.group == Group.Bad && random.nextInt(100) > 96) this.fire();
         if (this.group == Group.Bad && random.nextInt(100) > 97) randomDir();
+        boundsCheck();
         rect.x = this.x;
         rect.y = this.y;
-        boundsCheck();
     }
 
     private void boundsCheck() {
@@ -134,6 +136,27 @@ public class Tank extends BaseTank {
 //            return;
 //        fs.fire(this);
 //    }
+private void readObject(ObjectInputStream in)
+        throws IOException, ClassNotFoundException {
+    in.defaultReadObject();          // 恢复普通字段
+    this.random = new Random();      // 重建 transient 字段
+    this.rect = new Rectangle();     // 重建 Rectangle
+    this.rect.x = this.x;
+    this.rect.y = this.y;
+    this.rect.width = WIDTH;
+    this.rect.height = HEIGHT;
+    // model 无法在这里恢复，需要外部 load() 里注入
+}
+
+    // 供 load() 调用，重建 rect 并注入 model
+    public void afterLoad(GameModel model) {
+        this.model = model;
+        if (this.rect == null) this.rect = new Rectangle();
+        this.rect.x = this.x;
+        this.rect.y = this.y;
+        this.rect.width = WIDTH;
+        this.rect.height = HEIGHT;
+    }
 
     public void fire() {
         if (!living) return;

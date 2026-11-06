@@ -5,10 +5,12 @@ import java.awt.event.KeyEvent;
 
 public class TankController extends KeyAdapter {
     private final GameModel model;
+    private final TankFrame frame;
     private boolean bL = false, bU = false, bR = false, bD = false;
 
-    public TankController(GameModel model) {
+    public TankController(GameModel model, TankFrame frame) {
         this.model = model;
+        this.frame = frame;
     }
 
     private void setMainTankDir() {
@@ -34,7 +36,9 @@ public class TankController extends KeyAdapter {
             case KeyEvent.VK_DOWN:  bD = true; break;
             case KeyEvent.VK_SPACE: model.myTank.fire(); break;
             case KeyEvent.VK_S:     model.save(); break;
-            case KeyEvent.VK_L:     model.load(); break;
+            case KeyEvent.VK_L:     model.load();
+            frame.repaint();
+            break;
             default: break;
         }
         setMainTankDir();

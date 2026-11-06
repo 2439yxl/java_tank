@@ -36,16 +36,16 @@ public class GameModel {
     }
 
     public void init() {
-        myTank = new Tank(200, 400, Dir.DOWN, Group.Good, this);
+        myTank = new Tank(TankFrame.GAME_WIDTH/2, TankFrame.GAME_HEIGHT-2*Tank.HEIGHT, Dir.DOWN, Group.Good, this);
         add(myTank);
         int initTankCount = Integer.parseInt((String)PropertyMgr.get("initTankCount"));
         for (int i = 0; i < initTankCount; i++) {
-            add(new Tank(50 + i * 80, 200, Dir.DOWN, Group.Bad, this));
+            new Tank(Tank.WIDTH+i*Tank.WIDTH,Tank.HEIGHT, Dir.DOWN, Group.Bad, this);
         }
-        add(new Wall(150, 150, 200, 50));
-        add(new Wall(550, 150, 200, 50));
-        add(new Wall(300, 300, 50, 200));
-        add(new Wall(550, 300, 50, 200));
+        add(new Wall(TankFrame.GAME_WIDTH/2-400, TankFrame.GAME_HEIGHT/2-200, 300, 50));
+        add(new Wall(TankFrame.GAME_WIDTH/2+100, TankFrame.GAME_HEIGHT/2-200, 300, 50));
+        add(new Wall(TankFrame.GAME_WIDTH/2-200, TankFrame.GAME_HEIGHT/2-50, 50, 300));
+        add(new Wall(TankFrame.GAME_WIDTH/2+150, TankFrame.GAME_HEIGHT/2-50, 50, 300));
     }
 
     // ---------- add 系列 ----------
@@ -84,14 +84,13 @@ public class GameModel {
     // ---------- 主循环推进 ----------
     public void update() {
         // 1. 移动子弹
-        for (int i = 0; i < bullets.size(); i++) {
-            bullets.get(i).move();
+        for (BaseBullet b:bullets) {
+            b.move();
         }
         // 2. 移动坦克
-        for (int i = 0; i < tanks.size(); i++) {
-            tanks.get(i).move();
+        for (Tank t:tanks) {
+            t.move();
         }
-        if (myTank != null) myTank.move();
 
         // 3. 碰撞检测
         collide();
@@ -108,7 +107,11 @@ public class GameModel {
         // 5. 清理死亡坦克
         for (int i = tanks.size() - 1; i >= 0; i--) {
             Tank t = tanks.get(i);
-            if (!t.isLiving()) tanks.remove(i);
+            if (!t.isLiving()){
+                tanks.remove(i);
+                objects.remove(t);
+            }
+
         }
 
         // 6. 清理爆炸动画（已结束的）
@@ -140,33 +143,53 @@ public class GameModel {
         g.drawString("爆炸的数量：" + explodes.size(), 10, 100);
         g.setColor(c);
 
-        if (myTank != null && myTank.isLiving()) myTank.paint(g);
+//        if (myTank != null && myTank.isLiving()) myTank.paint(g);
         for (int j = 0; j < objects.size(); j++) objects.get(j).paint(g);
-        for (int j = 0; j < bullets.size(); j++) bullets.get(j).paint(g);
-        for (int j = 0; j < tanks.size(); j++) tanks.get(j).paint(g);
+//        for (int j = 0; j < bullets.size(); j++) bullets.get(j).paint(g);
+//        for (int j = 0; j < tanks.size(); j++) tanks.get(j).paint(g);
         for (int j = 0; j < explodes.size(); j++) explodes.get(j).paint(g);
     }
 
     // ---------- 存档 ----------
     public void save() {
-
-        File f = new File("c:/mashibing/tank.data");
+        File f = new File("D:/java_load/java_load.data");
         File dir = f.getParentFile();
         if (dir != null && !dir.exists()) dir.mkdirs();
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f))) {
-            oos.writeObject(myTank);
+            oos.writeObject(new ArrayList<>(tanks));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void load() {
-        File f = new File("c:/mashibing/tank.data");
-        if (!f.exists()) return;
+        File f = new File("D:/java_load/java_load.data");
+        if (!f.exists()) { System.out.println("存档不存在"); return; }
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
-            myTank = (Tank) ois.readObject();
-            myTank.model = this;
+            List<Tank> loaded = (List<Tank>) ois.readObject();
+            // 1. 先把旧坦克从 objects 里清掉（tanks 里的旧对象）
+            for (Tank old : tanks) {
+                objects.remove(old);
+            }
+            // 2. 替换列表
+            tanks.clear();
+            tanks.addAll(loaded);
+            // 3. 每个坦克重建 transient 字段 + 注入 model
+            for (Tank t : tanks) {
+                t.afterLoad(this);
+            }
+            // 4. 新坦克加入 objects（绘制要靠它）
+            for (Tank t : tanks) {
+                objects.add(t);
+            }
+            // 5. 重新绑定 myTank（如果存档里有玩家坦克）
+            myTank = null;
+            for (Tank t : tanks) {
+                if (t.group == Group.Good) { myTank = t; break; }
+            }
         } catch (IOException | ClassNotFoundException e) {
+            System.out.println("读取异常:");
             e.printStackTrace();
         }
     }

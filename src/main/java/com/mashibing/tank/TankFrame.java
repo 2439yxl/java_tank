@@ -15,7 +15,7 @@ public class TankFrame extends Frame {
 
     public TankFrame() {
         this.model = GameModel.getInstance();  // 用单例
-        this.controller = new TankController(model);
+        this.controller = new TankController(model,this);
 
         setSize(GAME_WIDTH, GAME_HEIGHT);
         setResizable(false);

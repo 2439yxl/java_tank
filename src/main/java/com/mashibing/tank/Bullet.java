@@ -6,7 +6,7 @@ import java.awt.*;
 
 public class Bullet extends BaseBullet {
 
-    private static final float BULLET_SPEED = 35;
+    private static final float BULLET_SPEED = 25;
     public static int WIDTH = ResourceMgr.bulletD.getWidth();
     public static int HEIGHT = ResourceMgr.bulletD.getHeight();
     public Rectangle rect = new Rectangle(0, 0, WIDTH, HEIGHT);
