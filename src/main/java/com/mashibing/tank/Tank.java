@@ -11,8 +11,8 @@ public class Tank extends BaseTank {
 
     public Dir dir = Dir.UP;
     public transient GameModel model;   // transient 避免序列化循环
-    private static final int SPEED = 8;
-    private transient Random random = new Random();
+    private static final int SPEED = 4;
+    private final transient Random random = new Random();
     public static int WIDTH = ResourceMgr.BadtankD.getWidth();
     public static int HEIGHT = ResourceMgr.BadtankD.getHeight();
     public Group group = Group.Bad;
@@ -27,8 +27,8 @@ public class Tank extends BaseTank {
     public void setMoving(boolean moving) { this.moving = moving; }
     public Dir getDir() { return dir; }
     public void setDir(Dir dir) { this.dir = dir; }
-    public void setX(int x) { this.x = x; }
-    public void setY(int y) { this.y = y; }
+    public void setX(int x) { this.x = x; this.rect.x = x; }
+    public void setY(int y) { this.y = y; this.rect.y = y; }
     public int getX() { return x; }
     public int getY() { return y; }
     public void die() { this.living = false; }
@@ -86,17 +86,19 @@ public class Tank extends BaseTank {
 
     @Override
     public int getWidth() {
-        return 0;
+        return WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return 0;
+        return HEIGHT;
     }
 
     public void back() {
         x = oldX;
         y = oldY;
+        rect.x = this.x;
+        rect.y = this.y;
     }
 
     public void move() {
@@ -109,11 +111,11 @@ public class Tank extends BaseTank {
             case RIGHT: x += SPEED; break;
             case DOWN:  y += SPEED; break;
         }
-        if (this.group == Group.Bad && random.nextInt(100) > 95) this.fire();
-        if (this.group == Group.Bad && random.nextInt(100) > 95) randomDir();
-        boundsCheck();
+        if (this.group == Group.Bad && random.nextInt(100) > 96) this.fire();
+        if (this.group == Group.Bad && random.nextInt(100) > 97) randomDir();
         rect.x = this.x;
         rect.y = this.y;
+        boundsCheck();
     }
 
     private void boundsCheck() {

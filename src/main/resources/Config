@@ -1,7 +1,7 @@
 #tanks count at initialization
-initTankCount=10
-tankSpeed=5
-bulletSpeed=10
+initTankCount=20
+tankSpeed=20
+bulletSpeed=7
 gamewidth=1600
 gameheight=1000
 #fireStratey

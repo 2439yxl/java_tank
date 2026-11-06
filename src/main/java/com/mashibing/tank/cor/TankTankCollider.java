@@ -19,8 +19,8 @@ public class TankTankCollider implements Collider {
         return true;
     }
 
-    @Override
-    public boolean collide(Graphics o1, Graphics o2) {
-        return false;
-    }
+//    @Override
+//    public boolean collide(Graphics o1, Graphics o2) {
+//        return false;
+//    }
 }

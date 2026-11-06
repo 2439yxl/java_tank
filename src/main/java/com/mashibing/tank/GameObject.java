@@ -11,4 +11,7 @@ public abstract class GameObject implements Serializable {
     public abstract int getWidth();
     public abstract int getHeight();
 
+    public boolean isLiving() {
+        return true;
+    };
 }

@@ -16,7 +16,7 @@ public abstract class ColliderChain implements Collider {
     public ColliderChain() {
         add(new BulletTankCollider());
         add(new TankTankCollider());
-        add(new BulletWallCollider());
+        add(new TankWallCollider());
         add(new BulletWallCollider());
     }
 
@@ -30,8 +30,8 @@ public abstract class ColliderChain implements Collider {
         return true;
     }
 
-    @Override
-    public boolean collide(Graphics o1, Graphics o2) {
-        return false;
-    }
+//    @Override
+//    public boolean collide(Graphics o1, Graphics o2) {
+//        return false;
+//    }
 }

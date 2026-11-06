@@ -4,6 +4,8 @@ import com.mashibing.tank.abstractfactory.BaseBullet;
 import com.mashibing.tank.abstractfactory.BaseExplode;
 import com.mashibing.tank.abstractfactory.GameFactory;
 import com.mashibing.tank.abstractfactory.RectFactory;
+import com.mashibing.tank.cor.ColliderChain;
+import com.mashibing.tank.cor.DefaultColliderChain;
 
 import java.awt.*;
 import java.io.*;
@@ -14,6 +16,7 @@ public class GameModel {
 
     public Tank myTank;
     private static final GameModel INSTANCE = new GameModel();
+    private ColliderChain colliderChain = new DefaultColliderChain();
 
     static {
         INSTANCE.init();
@@ -34,9 +37,10 @@ public class GameModel {
 
     public void init() {
         myTank = new Tank(200, 400, Dir.DOWN, Group.Good, this);
-        int initTankCount = Integer.parseInt((String) PropertyMgr.get("initTankCount"));
+        add(myTank);
+        int initTankCount = Integer.parseInt((String)PropertyMgr.get("initTankCount"));
         for (int i = 0; i < initTankCount; i++) {
-            new Tank(50 + i * 80, 200, Dir.DOWN, Group.Bad, this);
+            add(new Tank(50 + i * 80, 200, Dir.DOWN, Group.Bad, this));
         }
         add(new Wall(150, 150, 200, 50));
         add(new Wall(550, 150, 200, 50));
@@ -55,10 +59,12 @@ public class GameModel {
 
     public void add(Bullet bullet) {
         bullets.add(bullet);
+        objects.add(bullet);
     }
 
     public void add(Tank tank) {
         tanks.add(tank);
+        objects.add(tank);
     }
 
     // ---------- remove 系列 ----------
@@ -73,6 +79,7 @@ public class GameModel {
     public void removeExplode(BaseExplode e) {
         explodes.remove(e);
     }
+
 
     // ---------- 主循环推进 ----------
     public void update() {
@@ -92,7 +99,10 @@ public class GameModel {
         // 4. 清理死亡子弹
         for (int i = bullets.size() - 1; i >= 0; i--) {
             BaseBullet b = bullets.get(i);
-            if (!b.isLiving()) bullets.remove(i);
+            if (!b.isLiving()) {
+                bullets.remove(i);
+                objects.remove(b);
+            }
         }
 
         // 5. 清理死亡坦克
@@ -111,13 +121,12 @@ public class GameModel {
 
     // ---------- 碰撞 ----------
     public void collide() {
-        for (int j = 0; j < bullets.size(); j++) {
-            BaseBullet b = bullets.get(j);
-            if (!b.isLiving()) continue;
-            for (int k = 0; k < tanks.size(); k++) {
-                Tank t = tanks.get(k);
-                if (!t.isLiving()) continue;
-                b.collideWith(t);
+        for (int i = 0; i < objects.size(); i++) {
+            for (int j = i + 1; j < objects.size(); j++) {
+                GameObject o1 = objects.get(i);
+                GameObject o2 = objects.get(j);
+                if (!o1.isLiving() || !o2.isLiving()) continue;
+                colliderChain.collide(o1, o2);
             }
         }
     }

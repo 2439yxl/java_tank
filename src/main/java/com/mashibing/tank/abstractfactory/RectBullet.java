@@ -45,6 +45,16 @@ public class RectBullet extends BaseBullet {
         g.setColor(c);
     }
 
+    @Override
+    public int getWidth() {
+        return 0;
+    }
+
+    @Override
+    public int getHeight() {
+        return 0;
+    }
+
     /** 由 GameModel.update() 显式调用。 */
     public void move() {
         if (!living) return;
@@ -63,9 +73,9 @@ public class RectBullet extends BaseBullet {
     }
 
     @Override
-    public boolean collideWith(Tank tank) {
-        if (!living) return false;
-        if (this.group == tank.getGroup()) return false;
+    public void collideWith(Tank tank) {
+        if (!living) return ;
+        if (this.group == tank.getGroup()) return ;
         if (rect.intersects(tank.rect)) {
             tank.die();
             this.die();
@@ -73,7 +83,6 @@ public class RectBullet extends BaseBullet {
             int eY = tank.getY() + Tank.HEIGHT / 2 - Explode.HEIGHT / 2;
             model.add(new Explode(eX, eY, model));
         }
-        return false;
     }
 
     private void die() {

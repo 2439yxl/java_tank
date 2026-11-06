@@ -6,7 +6,7 @@ import java.awt.*;
 
 public class Bullet extends BaseBullet {
 
-    private static final float BULLET_SPEED = 20;
+    private static final float BULLET_SPEED = 35;
     public static int WIDTH = ResourceMgr.bulletD.getWidth();
     public static int HEIGHT = ResourceMgr.bulletD.getHeight();
     public Rectangle rect = new Rectangle(0, 0, WIDTH, HEIGHT);
@@ -42,6 +42,16 @@ public class Bullet extends BaseBullet {
         }
     }
 
+    @Override
+    public int getWidth() {
+        return 0;
+    }
+
+    @Override
+    public int getHeight() {
+        return 0;
+    }
+
     public void move() {
         if (!living) return;
         switch (dir) {
@@ -57,21 +67,19 @@ public class Bullet extends BaseBullet {
         }
     }
 
-    public boolean collideWith(Tank tank) {
-        if (!living) return true;
-        if (this.group == tank.getGroup()) return false;
+    public void collideWith(Tank tank) {
+        if (!living) return;
+        if (this.group == tank.getGroup()) return;
         if (rect.intersects(tank.rect)) {
             tank.die();
             this.die();
             int eX = tank.getX() + Tank.WIDTH / 2 - Explode.WIDTH / 2;
             int eY = tank.getY() + Tank.HEIGHT / 2 - Explode.HEIGHT / 2;
             model.add(new Explode(eX, eY, model));
-            return true;
         }
-        return false;
     }
 
     public void die() {
-        this.living = false;
+        this.living =false;
     }
 }

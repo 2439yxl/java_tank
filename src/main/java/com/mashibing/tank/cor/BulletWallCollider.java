@@ -9,20 +9,20 @@ public class BulletWallCollider implements Collider {
 
     @Override
     public boolean collide(GameObject o1, GameObject o2) {
-        if (o1 instanceof Tank && o2 instanceof Wall) {
-            Tank t = (Tank) o1;
+        if (o1 instanceof Bullet && o2 instanceof Wall) {
+            Bullet b = (Bullet) o1;
             Wall w = (Wall) o2;
-            if (t.rect.intersects(w.rect)) {
-                t.back();
+            if (b.rect.intersects(w.rect)) {
+                b.die();
             }
-        } else if (o1 instanceof Wall && o2 instanceof Tank) {
+        } else if (o1 instanceof Wall && o2 instanceof Bullet) {
             return collide(o2, o1);
         }
         return true;
     }
 
-    @Override
-    public boolean collide(Graphics o1, Graphics o2) {
-        return false;
-    }
+//    @Override
+//    public boolean collide(Graphics o1, Graphics o2) {
+//        return false;
+//    }
 }

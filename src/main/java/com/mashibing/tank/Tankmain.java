@@ -5,6 +5,7 @@ public class Tankmain {
         TankFrame tf = new TankFrame();
         GameModel model = tf.getModel();
 
+
         while (true) {
             try {
                 Thread.sleep(50);
