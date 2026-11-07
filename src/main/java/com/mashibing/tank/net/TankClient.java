@@ -1,8 +1,13 @@
 // com.mashibing.tank.net.TankClient
 package com.mashibing.tank.net;
 
+import com.mashibing.tank.GameModel;
+import com.mashibing.tank.Tank;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -38,10 +43,19 @@ public class TankClient {
                                     .addLast(new TankClientHandler(TankClient.this));
                         }
                     });
-
             ChannelFuture f = b.connect(HOST, PORT).sync();
             this.channel = f.channel();
             System.out.println("[Netty] connected, playerId=" + playerId);
+            Tank my = GameModel.getInstance().myTank;
+            if (my != null) {
+                my.setPlayerId(playerId);   // 让 myTank 的 ID 和 client 一致
+                send(TankMsg.join(my.getPlayerId(), my.getX(), my.getY(),
+                        my.getDir().name(), my.getGroup().name()));
+                System.out.println("[Client] JOIN sent: " + my.getPlayerId());
+            } else {
+                System.err.println("[Netty] myTank 还没创建，JOIN 发不出去");
+            }
+//
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -51,6 +65,13 @@ public class TankClient {
     public void send(TankMsg msg) {
         if (channel != null && channel.isActive()) {
             channel.writeAndFlush(msg);
+        }
+    }
+
+    public void close() {
+        if (channel != null) {
+            channel.close();
+            channel = null;
         }
     }
 }

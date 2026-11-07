@@ -6,13 +6,69 @@ import com.mashibing.tank.abstractfactory.GameFactory;
 import com.mashibing.tank.abstractfactory.RectFactory;
 import com.mashibing.tank.cor.ColliderChain;
 import com.mashibing.tank.cor.DefaultColliderChain;
+import com.mashibing.tank.net.TankClientHolder;
 
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class GameModel {
+    private static final Random random = new Random();
+
+    /**
+     * 在屏幕内随机找一个不与墙、不与已有坦克重叠的出生点
+     * @param group 坦克分组（决定出生区域偏好）
+     * @return int[]{x, y}，找不到返回 null
+     */
+    private int[] randomSpawnPoint(Group group) {
+        int maxTry = 100;
+        for (int t = 0; t < maxTry; t++) {
+            int x, y;
+            if (group == Group.Good) {
+                // 我方：屏幕下半部分
+                x = random.nextInt(TankFrame.GAME_WIDTH - Tank.WIDTH - 20) + 10;
+                y = TankFrame.GAME_HEIGHT / 2 + random.nextInt(TankFrame.GAME_HEIGHT / 2 - Tank.HEIGHT - 20);
+            } else {
+                // 敌方：屏幕上半部分
+                x = random.nextInt(TankFrame.GAME_WIDTH - Tank.WIDTH - 20) + 10;
+                y = 20 + random.nextInt(TankFrame.GAME_HEIGHT / 2 - Tank.HEIGHT - 20);
+            }
+
+            Rectangle r = new Rectangle(x, y, Tank.WIDTH, Tank.HEIGHT);
+
+            // 1. 不撞墙
+            boolean hitWall = false;
+            for (GameObject obj : objects) {
+                if (obj instanceof Wall && r.intersects(((Wall) obj).rect)) {
+                    hitWall = true;
+                    break;
+                }
+            }
+            if (hitWall) continue;
+
+            // 2. 不撞已有坦克
+            boolean hitTank = false;
+            for (Tank tank : tanks) {
+                if (r.intersects(tank.rect)) {
+                    hitTank = true;
+                    break;
+                }
+            }
+            if (hitTank) continue;
+
+            // 3. 在屏幕内（留 20 像素边距）
+            if (x < 10 || y < 10
+                    || x + Tank.WIDTH > TankFrame.GAME_WIDTH - 10
+                    || y + Tank.HEIGHT > TankFrame.GAME_HEIGHT - 10) {
+                continue;
+            }
+
+            return new int[]{x, y};
+        }
+        return null;   // 100 次都找不到，返回 null（调用方兜底）
+    }
 
     public Tank myTank;
     private static final GameModel INSTANCE = new GameModel();
@@ -35,17 +91,31 @@ public class GameModel {
         return INSTANCE;
     }
 
+
     public void init() {
-        myTank = new Tank(TankFrame.GAME_WIDTH/2, TankFrame.GAME_HEIGHT-2*Tank.HEIGHT, Dir.DOWN, Group.Good, this);
-        add(myTank);
-        int initTankCount = Integer.parseInt((String)PropertyMgr.get("initTankCount"));
-        for (int i = 0; i < initTankCount; i++) {
-            new Tank(Tank.WIDTH+i*Tank.WIDTH,Tank.HEIGHT, Dir.DOWN, Group.Bad, this);
-        }
-        add(new Wall(TankFrame.GAME_WIDTH/2-400, TankFrame.GAME_HEIGHT/2-200, 300, 50));
-        add(new Wall(TankFrame.GAME_WIDTH/2+100, TankFrame.GAME_HEIGHT/2-200, 300, 50));
         add(new Wall(TankFrame.GAME_WIDTH/2-200, TankFrame.GAME_HEIGHT/2-50, 50, 300));
         add(new Wall(TankFrame.GAME_WIDTH/2+150, TankFrame.GAME_HEIGHT/2-50, 50, 300));
+        int[] p = randomSpawnPoint(Group.Good);
+        if (p == null) p = new int[]{TankFrame.GAME_WIDTH / 2, TankFrame.GAME_HEIGHT - 2 * Tank.HEIGHT}; // 兜底
+        myTank = new Tank(p[0], p[1], Dir.UP, Group.Good, this);
+//        myTank = new Tank(TankFrame.GAME_WIDTH/2, TankFrame.GAME_HEIGHT-2*Tank.HEIGHT, Dir.DOWN, Group.Good, this);
+//        myTank.setMoving(false);
+        int initTankCount = Integer.parseInt((String)PropertyMgr.get("initTankCount"));
+//        for (int i = 0; i < initTankCount; i++) {
+//            new Tank(Tank.WIDTH+i*Tank.WIDTH,Tank.HEIGHT, Dir.DOWN, Group.Bad, this);
+//        }
+        for (int i = 0; i < initTankCount; i++) {
+            int[] ep = randomSpawnPoint(Group.Bad);
+            if (ep == null) {
+                // 兜底：按原逻辑排
+                ep = new int[]{Tank.WIDTH + i * (Tank.WIDTH + 10), Tank.HEIGHT};
+            }
+            new Tank(ep[0], ep[1], Dir.DOWN, Group.Bad, this);
+//            bad.setAI(true);   // AI 坦克（如果加了 isAI）
+        }
+//        add(new Wall(TankFrame.GAME_WIDTH/2-400, TankFrame.GAME_HEIGHT/2-200, 300, 50));
+//        add(new Wall(TankFrame.GAME_WIDTH/2+100, TankFrame.GAME_HEIGHT/2-200, 300, 50));
+        myTank.setPlayerId(TankClientHolder.client.playerId);
     }
 
     // ---------- add 系列 ----------
@@ -193,4 +263,26 @@ public class GameModel {
             e.printStackTrace();
         }
     }
+    // GameModel 里新增
+    public Tank findTankByPlayerId(String pid) {
+        if (myTank != null && pid.equals(myTank.getPlayerId())) return myTank;
+        for (Tank t : tanks) {
+            if (pid.equals(t.getPlayerId())) return t;
+        }
+        return null;
+    }
+
+    public void removeTankByPlayerId(String pid) {
+        for (int i = tanks.size() - 1; i >= 0; i--) {
+            Tank t = tanks.get(i);
+            if (pid.equals(t.getPlayerId())) {
+                tanks.remove(i);
+                objects.remove(t);
+                System.out.println("[GameModel] removed tank pid=" + pid);
+            }
+        }
+    }
+
+
+
 }

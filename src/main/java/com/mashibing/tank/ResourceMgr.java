@@ -8,6 +8,7 @@ import java.util.Objects;
 public class ResourceMgr {
     public static BufferedImage BadtankL,BadtankR,BadtankU,BadtankD;
     public static BufferedImage GoodtankL,GoodtankR,GoodtankU,GoodtankD;
+    public static BufferedImage othertankL,othertankR,othertankU,othertankD;
     public static BufferedImage bulletL,bulletR,bulletU,bulletD;
     public  static  BufferedImage[] explodes = new BufferedImage[16];
     static {
@@ -20,6 +21,10 @@ public class ResourceMgr {
             GoodtankD = ImageUtil.rotateImage(GoodtankU, 180);
             GoodtankL = ImageUtil.rotateImage(GoodtankU, -90);
             GoodtankR = ImageUtil.rotateImage(GoodtankU, 90);
+            othertankU = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getResourceAsStream("/otherTank.png")));
+            othertankD = ImageUtil.rotateImage(othertankU, 180);
+            othertankL = ImageUtil.rotateImage(othertankU, -90);
+            othertankR = ImageUtil.rotateImage(othertankU, 90);
 
             bulletD = ImageIO.read(Objects.requireNonNull(ResourceMgr.class.getResourceAsStream("/bulletD.gif")));
             bulletL = ImageUtil.rotateImage(bulletD, 90);

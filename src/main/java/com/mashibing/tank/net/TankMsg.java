@@ -57,4 +57,10 @@ public class TankMsg implements Serializable {
         m.playerId = pid;
         return m;
     }
+    public static TankMsg leave(String pid) {
+        TankMsg m = new TankMsg();
+        m.type = MsgType.TANK_LEAVE;
+        m.playerId = pid;
+        return m;
+    }
 }

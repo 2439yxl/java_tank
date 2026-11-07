@@ -1,6 +1,8 @@
 package com.mashibing.tank;
 
 import com.mashibing.tank.abstractfactory.BaseTank;
+import com.mashibing.tank.net.TankClientHolder;
+import com.mashibing.tank.net.TankMsg;
 
 import java.awt.*;
 import java.io.IOException;
@@ -21,6 +23,10 @@ public class Tank extends BaseTank {
     public transient Rectangle rect = new Rectangle();
     private boolean moving = true;
     private boolean living = true;
+    // Tank 里
+    private String playerId;
+    public String getPlayerId() { return playerId; }
+    public void setPlayerId(String playerId) { this.playerId = playerId; }
 
 //    transient FireStrategy fs;
 
@@ -33,8 +39,16 @@ public class Tank extends BaseTank {
     public void setY(int y) { this.y = y; this.rect.y = y; }
     public int getX() { return x; }
     public int getY() { return y; }
-    public void die() { this.living = false; }
+    public Rectangle getRect() { return rect; }
 
+
+    public void die() {
+        if (!living) return;
+        this.living = false;
+        if (this.getPlayerId() != null && this.getPlayerId().equals(TankClientHolder.client.playerId)) {
+            TankClientHolder.client.send(TankMsg.die(this.getPlayerId()));
+        }
+    }
     public Tank(int x, int y, Dir dir, Group group, GameModel model) {
         super();
         this.x = x;
@@ -47,25 +61,7 @@ public class Tank extends BaseTank {
         rect.width = this.WIDTH;
         rect.height = this.HEIGHT;
         model.add(this);
-//        if (group == Group.Good) {
-//            String goodFSName = (String) PropertyMgr.get("GoodFS");
-//            try {
-//                fs = (FireStrategy) Class.forName(goodFSName)
-//                        .getDeclaredConstructor().newInstance();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                fs = new DefaultFireStrategy();
-            }
-//        } else {
-//            fs = new DefaultFireStrategy();
-//        }
-
-//    }
-
-//    @Override
-//    public int getWidth() { return WIDTH; }
-//    @Override
-//    public int getHeight() { return HEIGHT; }
+    }
 
     public void paint(Graphics g) {
         if (!living) return;
@@ -118,6 +114,10 @@ public class Tank extends BaseTank {
         boundsCheck();
         rect.x = this.x;
         rect.y = this.y;
+        if (this.getPlayerId() != null
+                && this.getPlayerId().equals(TankClientHolder.client.playerId)) {
+            TankClientHolder.client.send(TankMsg.move(this.getPlayerId(), x, y));
+        }
     }
 
     private void boundsCheck() {
@@ -131,11 +131,6 @@ public class Tank extends BaseTank {
         this.dir = com.mashibing.tank.Dir.values()[random.nextInt(4)];
     }
 
-//    public void fire() {
-//        if (!living)
-//            return;
-//        fs.fire(this);
-//    }
 private void readObject(ObjectInputStream in)
         throws IOException, ClassNotFoundException {
     in.defaultReadObject();          // 恢复普通字段
@@ -163,6 +158,11 @@ private void readObject(ObjectInputStream in)
         new Bullet(x + Tank.WIDTH / 2 - Bullet.WIDTH / 2,
                 y + Tank.HEIGHT / 2 - Bullet.HEIGHT / 2,
                 dir, group, model);
+        if (this.getPlayerId() != null && this.getPlayerId().equals(TankClientHolder.client.playerId)) {
+            TankClientHolder.client.send(
+                    TankMsg.fire(this.getPlayerId(), x + Tank.WIDTH / 2 - Bullet.WIDTH / 2,
+                            y + Tank.HEIGHT / 2 - Bullet.HEIGHT / 2, dir.name()));
+        }
     }
     public Group getGroup() { return group; }
     public void setGroup(Group group) { this.group = group; }

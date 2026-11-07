@@ -1,5 +1,8 @@
 package com.mashibing.tank;
 
+import com.mashibing.tank.net.TankClientHolder;
+import com.mashibing.tank.net.TankMsg;
+
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -15,6 +18,7 @@ public class TankController extends KeyAdapter {
 
     private void setMainTankDir() {
         Tank myTank = model.myTank;
+        Dir oldDir = myTank.getDir();
         if (myTank == null) return;
         if (!bL && !bU && !bR && !bD) {
             myTank.setMoving(false);
@@ -24,6 +28,10 @@ public class TankController extends KeyAdapter {
             if (bR) myTank.setDir(Dir.RIGHT);
             if (bU) myTank.setDir(Dir.UP);
             if (bD) myTank.setDir(Dir.DOWN);
+        }
+        if (myTank.getDir() != oldDir && myTank.getPlayerId() != null) {
+            TankClientHolder.client.send(
+                    TankMsg.dirChange(myTank.getPlayerId(), myTank.getDir().name()));
         }
     }
 
