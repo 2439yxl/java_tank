@@ -8,6 +8,9 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class TankClientHandler extends SimpleChannelInboundHandler<TankMsg> {
 
     private final TankClient client;
+    private static final String RESET = "\u001B[0m";
+    private static final String GREEN = "\u001B[32m";
+    private static final String RED   = "\u001B[31m";
 
     public TankClientHandler(TankClient client) {
         this.client = client;
@@ -19,29 +22,35 @@ public class TankClientHandler extends SimpleChannelInboundHandler<TankMsg> {
 
         switch (msg.type) {
             case TANK_JOIN:
-                System.out.println("[Client] JOIN recv: pid=" + msg.playerId + " myId=" + client.playerId);
+                System.out.println(GREEN + "================ JOIN ================" + RESET);
+                System.out.println("[Client] JOIN recv: pid=" + msg.playerId
+                        + " myId=" + client.playerId
+                        + " x=" + msg.x + " y=" + msg.y + " dir=" + msg.dir);
+                System.out.println(GREEN + "======================================" + RESET);
+
+
+                if (msg.playerId == null || msg.dir == null) {
+                    System.out.println("[Client] JOIN with null pid/dir, skip");
+                    break;
+                }
                 if (!msg.playerId.equals(client.playerId)) {
-                    // 1. 检查是否已存在（防重复 JOIN 重复 new）
                     if (gm.findTankByPlayerId(msg.playerId) != null) {
                         System.out.println("[Client] tank already exists, skip: " + msg.playerId);
                         break;
                     }
-                    // 2. new 别人的坦克，Group.Bad（黄色外观）
                     Tank other = new Tank(msg.x, msg.y, Dir.valueOf(msg.dir), Group.Bad, gm);
                     other.setPlayerId(msg.playerId);
-                    // 3. 别人的坦克不是 AI，本地不自动动
-//                    other.setAI(false);        // 如果加了 isAI
-                    other.setMoving(false);    // 本地不动，只靠 TANK_MOVE 消息
+                    other.setMoving(false);
                     System.out.println("[Client] new other tank, pid=" + msg.playerId
-                            + " at " + msg.x + "," + msg.y
-                            + " tanks.size=" + gm.tanks.size()
-                            + " objects.size=" + gm.objects.size());
+                            + " tanks=" + gm.tanks.size() + " objects=" + gm.objects.size());
                 }
                 break;
 
             case TANK_LEAVE:
                 gm.removeTankByPlayerId(msg.playerId);
+                System.out.println(RED + "================ LEAVE ===============" + RESET);
                 System.out.println("[Client] TANK_LEAVE recv: " + msg.playerId);
+                System.out.println(RED + "=====================================" + RESET);
                 break;
 
             case TANK_DIR_CHANGE:

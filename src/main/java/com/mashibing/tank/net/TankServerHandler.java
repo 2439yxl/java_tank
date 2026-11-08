@@ -24,11 +24,24 @@ public class TankServerHandler extends SimpleChannelInboundHandler<TankMsg> {
         System.out.println("[Server] recv: type=" + msg.type + " pid=" + msg.playerId
                 + " from " + ctx.channel().remoteAddress());
         if (msg.type == MsgType.TANK_JOIN) {
+            if (msg.playerId == null) {
+                System.out.println("[Server] JOIN with null pid, ignore");
+                return;
+            }
             tankStates.put(msg.playerId, msg);
             channelToPlayerId.put(ctx.channel(), msg.playerId);
-            // 把已有坦克发给新玩家（新玩家自己收到的 JOIN 会忽略自己）
+
             for (TankMsg m : tankStates.values()) {
-                if (!m.playerId.equals(msg.playerId)) ctx.channel().writeAndFlush(m);
+                if (m.playerId.equals(msg.playerId)) continue;
+
+                // ★ 关键：不管 m 是什么类型，强制重新构造一条 TANK_JOIN
+                String dir = (m.dir == null) ? "UP" : m.dir;
+                TankMsg join = TankMsg.join(m.playerId, m.x, m.y, dir, m.group);
+
+                System.out.println("[Server] force-send JOIN: pid=" + join.playerId
+                        + " type=" + join.type + " x=" + join.x + " y=" + join.y
+                        + " dir=" + join.dir);
+                ctx.channel().writeAndFlush(join);
             }
         }
         // 更新状态

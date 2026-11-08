@@ -33,6 +33,8 @@ public class TankClient {
             b.group(group)
                     .channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<SocketChannel>() {
+//                            .channel(NioDatagramChannel .class)                 // ① 换通道
+//             .handler(new ChannelInitializer<DatagramChannel>() { // ② 泛型换
                         @Override
                         protected void initChannel(SocketChannel ch) {
                             ch.pipeline()
@@ -40,10 +42,12 @@ public class TankClient {
                                     .addLast(new ObjectDecoder(1024 * 1024,
                                             ClassResolvers.cacheDisabled(this.getClass().getClassLoader())))
                                     .addLast(new ObjectEncoder())
+//                                    .addLast(new UdpTankCodec())              // ③ 换编解码
                                     .addLast(new TankClientHandler(TankClient.this));
                         }
                     });
             ChannelFuture f = b.connect(HOST, PORT).sync();
+//            ChannelFuture f = b.bind(0).sync();                 // ④ 不再 connect，bind(0) 拿随机端口
             this.channel = f.channel();
             System.out.println("[Netty] connected, playerId=" + playerId);
             Tank my = GameModel.getInstance().myTank;
@@ -65,6 +69,9 @@ public class TankClient {
     public void send(TankMsg msg) {
         if (channel != null && channel.isActive()) {
             channel.writeAndFlush(msg);
+//            channel.writeAndFlush(new DatagramPacket(
+//                    Unpooled.wrappedBuffer(UdpTankCodec.encode(msg)), // ⑤ 包成 DatagramPacket
+//                    SERVER_ADDR));
         }
     }
 

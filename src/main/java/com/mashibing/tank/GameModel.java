@@ -99,7 +99,7 @@ public class GameModel {
         if (p == null) p = new int[]{TankFrame.GAME_WIDTH / 2, TankFrame.GAME_HEIGHT - 2 * Tank.HEIGHT}; // 兜底
         myTank = new Tank(p[0], p[1], Dir.UP, Group.Good, this);
 //        myTank = new Tank(TankFrame.GAME_WIDTH/2, TankFrame.GAME_HEIGHT-2*Tank.HEIGHT, Dir.DOWN, Group.Good, this);
-//        myTank.setMoving(false);
+        myTank.setMoving(false);
         int initTankCount = Integer.parseInt((String)PropertyMgr.get("initTankCount"));
 //        for (int i = 0; i < initTankCount; i++) {
 //            new Tank(Tank.WIDTH+i*Tank.WIDTH,Tank.HEIGHT, Dir.DOWN, Group.Bad, this);
@@ -210,7 +210,7 @@ public class GameModel {
         g.setColor(Color.WHITE);
         g.drawString("子弹的数量：" + bullets.size(), 10, 60);
         g.drawString("坦克的数量：" + tanks.size(), 10, 80);
-        g.drawString("爆炸的数量：" + explodes.size(), 10, 100);
+//        g.drawString("爆炸的数量：" + explodes.size(), 10, 100);
         g.setColor(c);
 
 //        if (myTank != null && myTank.isLiving()) myTank.paint(g);
